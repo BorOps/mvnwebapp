@@ -7,7 +7,10 @@ trigger:
 - master
 
 pool:
-  vmImage: ubuntu-latest
+  name: Mihajlo Onboarding
+
+variables:
+  imageName: 'maven-webapp-docker'
 
 steps:
 - task: Maven@3
@@ -15,17 +18,15 @@ steps:
     mavenPomFile: 'pom.xml'
     mavenOptions: '-Xmx3072m'
     javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
+    jdkVersionOption: '1.8'
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
 
-- task: TomcatDeployment@1
+- task: Docker@2
+  displayName: Build an image
   inputs:
-    TomcatUrl: 'http://aca1-2406-7400-56-8199-355c-f483-9e3-6505.ngrok-free.app'
-    Username: 'deployer'
-    Password: 'deployer'
-    Warfile: 'target/mvnwebapp.war'
-    Context: '/azure-deploy'
-    ServerVersion: '7OrAbove'
+    repository: $(imageName)
+    command: build
+    Dockerfile: mvnwebapp/Dockerfile
